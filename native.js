@@ -1,6 +1,6 @@
-let MD5 = require("md5");
-xml2js = require("xml2js");
-var request = require("request");
+const MD5 = require("md5");
+const xml2js = require("xml2js");
+const request = require("request");
 const random = require("string-random");
 
 ip = "127.0.0.1"; //ip 주소
@@ -8,14 +8,17 @@ url = "https://api.mch.weixin.qq.com/pay/unifiedorder"; // 요청 주소
 appid = "wx8397f8696b538317"; //appid
 mch_id = "1473426802"; //mch_id
 notify_url = "http://www.baidu.com"; //반환 주소
-out_trade_no = "293291231828"; // 주문번호
-total_fee = "100"; // 금액
+out_trade_no = random(8); // 주문번호
+total_fee = 1; // 금액
 body = "iphone"; //상품
 trade_type = "NATIVE"; // JSAPI--공중계정、NATIVE--QR코드、APP--app지불
 nonce_str = random(16); // 32bit이하
+
+//sign 생성
 stringA = `appid=${appid}&body=${body}&mch_id=${mch_id}&nonce_str=${nonce_str}&notify_url=${notify_url}&out_trade_no=${out_trade_no}&spbill_create_ip=${ip}&total_fee=${total_fee}&trade_type=${trade_type}`;
 stringSignTemp = stringA + "&key=T6m9iK73b0kn9g5v426MKfHQH7X8rKwb"; //key는 결제 키
 sign = MD5(stringSignTemp).toUpperCase(); //MD5 sign
+
 //xml 로 변환
 let formData = "<xml>";
 formData += "<appid>" + appid + "</appid>";
@@ -31,7 +34,6 @@ formData += "<sign>" + sign + "</sign>";
 formData += "</xml>";
 
 //요청
-
 request(
   {
     url: url,
