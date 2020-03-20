@@ -1,3 +1,5 @@
+// 일반 qr코드 방식
+
 const MD5 = require("md5");
 const xml2js = require("xml2js");
 const request = require("request");
@@ -33,6 +35,35 @@ formData += "<trade_type>NATIVE</trade_type>";
 formData += "<sign>" + sign + "</sign>";
 formData += "</xml>";
 
+//
+var formMessage = function(result) {
+  var message = {};
+  if (typeof result === "object") {
+    var keys = Object.keys(result);
+    for (var i = 0; i < keys.length; i++) {
+      var item = result[keys[i]];
+      var key = keys[i];
+      if (!(item instanceof Array) || item.length === 0) {
+        continue;
+      }
+      if (item.length === 1) {
+        var val = item[0];
+        if (typeof val === "object") {
+          message[key] = formMessage(val);
+        } else {
+          message[key] = (val || "").trim();
+        }
+      } else {
+        message[key] = [];
+        for (var j = 0, k = item.length; j < k; j++) {
+          message[key].push(formMessage(itemp[j]));
+        }
+      }
+    }
+  }
+  return message;
+};
+
 //요청
 request(
   {
@@ -41,40 +72,12 @@ request(
     body: formData
   },
   function(error, response, body) {
-    var formMessage = function(result) {
-      var message = {};
-      if (typeof result === "object") {
-        var keys = Object.keys(result);
-        for (var i = 0; i < keys.length; i++) {
-          var item = result[keys[i]];
-          var key = keys[i];
-          if (!(item instanceof Array) || item.length === 0) {
-            continue;
-          }
-          if (item.length === 1) {
-            var val = item[0];
-            if (typeof val === "object") {
-              message[key] = formMessage(val);
-            } else {
-              message[key] = (val || "").trim();
-            }
-          } else {
-            message[key] = [];
-            for (var j = 0, k = item.length; j < k; j++) {
-              message[key].push(formMessage(itemp[j]));
-            }
-          }
-        }
-      }
-      return message;
-    };
     if (!error && response.statusCode == 200) {
-      // xml->json
       xml2js.parseString(body, function(err, json) {
         if (err) {
           new Error("解析xml报错");
         } else {
-          var result = formMessage(json.xml); // json로 변환
+          var result = formMessage(json.xml);
           console.log(result);
         }
       });
