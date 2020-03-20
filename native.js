@@ -1,5 +1,4 @@
 // 일반 qr코드 방식
-
 const MD5 = require("md5");
 const xml2js = require("xml2js");
 const request = require("request");
